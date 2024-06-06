@@ -29,22 +29,29 @@ def read_data(path, split="/"):
 
 def aggregation(data, measurement, delta=0.1):
     data['time_in_sec'] = data['time'] / 1000
-    data = data.dropna()
-
     data[f'time_{delta}'] = (data['time_in_sec'] // delta).astype(int) * delta
 
-    aggregated_data = data.groupby([f'time_{delta}', 'language', 'tone', 'participant', 'script', 'sensor'])[measurement].\
-        agg(pitch_max='max', 
-            pitch_min='min', 
-            pitch_mean='mean', 
-            pitch_median='median',
-            pitch_std='std').reset_index()
+    def calculate_missing_percentage(group):
+        total_count = len(group)
+        missing_count = group[measurement].isna().sum()
+        missing_percentage = (missing_count / total_count) * 100
+
+        return pd.Series({
+            'pitch_max': group[measurement].max(),
+            'pitch_min': group[measurement].min(),
+            'pitch_mean': group[measurement].mean(),
+            'pitch_median': group[measurement].median(),
+            'pitch_std': group[measurement].std(),
+            'pitch_missing': missing_percentage
+        })
+
+    aggregated_data = data.groupby([f'time_{delta}', 'language', 'tone', 'participant', 'script', 'sensor']).apply(calculate_missing_percentage).reset_index()
     return aggregated_data
 
 def main():
     os.makedirs("./data_aggregated", exist_ok=True)
 
-    for delta in tqdm([0.1, 0.5, 1, 1.5, 2, 5]):
+    for delta in tqdm([0.1, 0.5, 1, 2, 5]):
         pitch_merged = pd.DataFrame()
         intensity_merged = pd.DataFrame()        
         for path in glob.glob("data/intensity_pitch/*/*.csv"):
