@@ -4,6 +4,8 @@ from tqdm import tqdm
 def main(n_aggregate=25):
     # Load the merged CSV file
     df = pd.read_csv('./data/Merged_Autocorrelation.csv')
+    # df = df[(df['participant'] != 'nga') & (df['participant'] != 'duru')]
+    # print(df)
 
     # Set the number of rows to aggregate
     column_to_aggregate = 'Autocorrelation (a.u.)'
@@ -73,7 +75,6 @@ def main(n_aggregate=25):
 
     # Save the aggregated dataframe to a new CSV file
     aggregated_df.to_csv(f'./data_aggregated/autocorrelation_time_{formatted_x}.csv', index=False)
-
 
 if __name__ == '__main__':
     for n in [6, 25, 49, 97, 241]:
