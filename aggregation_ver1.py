@@ -37,7 +37,8 @@ def aggregation(data, measurement, delta=0.1):
         agg(pitch_max='max', 
             pitch_min='min', 
             pitch_mean='mean', 
-            pitch_median='median').reset_index()
+            pitch_median='median',
+            pitch_std='std').reset_index()
     return aggregated_data
 
 def main():
