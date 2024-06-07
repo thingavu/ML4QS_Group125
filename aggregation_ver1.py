@@ -35,14 +35,15 @@ def aggregation(data, measurement, delta=0.1):
         total_count = len(group)
         missing_count = group[measurement].isna().sum()
         missing_percentage = (missing_count / total_count) * 100
+        sensor = group['sensor'].iloc[0]
 
         return pd.Series({
-            'pitch_max': group[measurement].max(),
-            'pitch_min': group[measurement].min(),
-            'pitch_mean': group[measurement].mean(),
-            'pitch_median': group[measurement].median(),
-            'pitch_std': group[measurement].std(),
-            'pitch_missing': missing_percentage
+            f'{sensor}_max': group[measurement].max(),
+            f'{sensor}_min': group[measurement].min(),
+            f'{sensor}_mean': group[measurement].mean(),
+            f'{sensor}_median': group[measurement].median(),
+            f'{sensor}_std': group[measurement].std(),
+            f'{sensor}_missing': missing_percentage
         })
 
     aggregated_data = data.groupby([f'time_{delta}', 'language', 'tone', 'participant', 'script', 'sensor']).apply(calculate_missing_percentage).reset_index()
