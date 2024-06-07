@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-def line_plots_combined(data, measure='pitch_mean'):
+def line_plots_combined(data, measure='pitch_mean', min_time=None, max_time=None, ):
     sensor = data['sensor'].iloc[0]
     languages = data['language'].unique()
     tones = data['tone'].unique()
@@ -10,9 +10,11 @@ def line_plots_combined(data, measure='pitch_mean'):
     time_col = [c for c in data.columns if 'time' in c][0]
     delta_t = float(time_col.split('_')[-1])
 
-    # Determine the common x-axis range
-    min_time = data[time_col].min()
-    max_time = data[time_col].max()
+    if min_time is None and max_time is None:
+        min_time = data[time_col].min()
+        max_time = data[time_col].max()
+    
+    data = data[(data[time_col] > min_time) & (data[time_col] < max_time)]
 
     fig, axs = plt.subplots(4, 1, figsize=(18, 6), sharex=True, sharey=True)
     axs = axs.flatten()
@@ -47,7 +49,7 @@ def line_plots_combined(data, measure='pitch_mean'):
             ax.set_title(f'{language_label} - {tone_label.capitalize()}', fontsize=14)
             idx += 1
 
-    plt.xlabel(f'Time (Δt={delta_t})', fontsize=14)
+    plt.xlabel(f'Time (Δt={delta_t}s)', fontsize=14)
     plt.tight_layout()
     file_name = f'./lineplots/{sensor}_delta{delta_t}.png'
     plt.savefig(file_name)
@@ -93,5 +95,5 @@ def line_plots_combined(data, measure='pitch_mean'):
 #             plot_and_save_intensity_float(data, language, tone)
 
 # Call the function with the aggregated data
-data = pd.read_csv('data_aggregated/pitch_time_0.1.csv')
-line_plots_combined(data, measure='pitch_mean')
+data = pd.read_csv('data_aggregated/pitch_time_0.5.csv')
+line_plots_combined(data, measure='pitch_mean', min_time=100, max_time=120)
