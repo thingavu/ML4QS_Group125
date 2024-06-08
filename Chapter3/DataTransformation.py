@@ -27,6 +27,22 @@ class LowPassFilter:
         else:
             data_table[col + '_lowpass'] = lfilter(b, a, data_table[col])
         return data_table
+    
+# This class removes the low frequency data (that might be considered noise) from the data.
+class HighPassFilter:
+
+    def high_pass_filter(self, data_table, col, sampling_frequency, cutoff_frequency, order=5, phase_shift=True):
+        nyq = 0.5 * sampling_frequency
+        cut = cutoff_frequency / nyq
+
+        b, a = butter(order, cut, btype='high', output='ba', analog=False)
+        if phase_shift:
+            data_table[col + '_highpass'] = filtfilt(b, a, data_table[col])
+        else:
+            data_table[col + '_highpass'] = lfilter
+        
+        return data_table
+
 
 # Class for Principal Component Analysis. We can only apply this when we do not have missing values (i.e. NaN).
 # For this we have to impute these first, be aware of this.
