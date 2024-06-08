@@ -1,21 +1,23 @@
 from Chapter3.ImputationMissingValues import ImputationMissingValues
 from Chapter3.KalmanFilters import KalmanFilters
-from Chapter3.DataTransformation import HighPassFilter
+from Chapter3.DataTransformation import LowPassFilter
 import pandas as pd
 
 # Load the data
-data = pd.read_csv('data_aggregated\pitch_time_0.1.csv', index_col=0)
+path = 'data_aggregated\\features_0.1.csv'
+data = pd.read_csv(path)
 
 # Target columns
-target_columns = ['pitch_mean']
+target_columns = ['amplitude_mean', 'pitch_mean', 'sound_intensity_mean']
 # Print the NaN values in target columns
-print("NaN values in origin columns:", data[target_columns].isnull().sum())
+for col in target_columns:
+    print("original-",col, data[col].isnull().sum())
 
 # Create an instance of the ImputationMissingValues class
 imputer = ImputationMissingValues()
 
-# Create an instance of the HighPassFilter class
-high_pass = HighPassFilter()
+# Create an instance of the LowPassFilter class
+low_pass = LowPassFilter()
 
 # Create an instance of the KalmanFilters class
 kalman = KalmanFilters()
@@ -28,7 +30,7 @@ def process_group(group):
 
     # Call the high_pass_filter function
     for col in target_columns:
-        group = high_pass.high_pass_filter(group, col, 1, 0.1)
+        group = low_pass.low_pass_filter(group, col, 100, 10)
 
     # Call the apply_kalman_filter function
     for col in target_columns:
@@ -38,4 +40,11 @@ def process_group(group):
 
 # Apply the operations on each subgroup
 data = data.groupby(['language', 'tone', 'participant', 'script']).apply(process_group).reset_index(drop=True)
-print("NaN valuesafter imputation:", data[target_columns].isnull().sum())
+
+# Print the NaN values in target columns
+for col in target_columns:
+    print("final-",col, data[col].isnull().sum())
+
+# Save the data
+file_name = "preprocessed_" + path.split('\\')[-1] #.split('.')[0]
+data.to_csv("data_preprocessed\\" + file_name)
