@@ -1,10 +1,12 @@
 import matplotlib.pyplot as plt
 import pandas as pd
+import glob
 
 
 def line_plots_combined(data, measure='pitch_mean', min_time=None, max_time=None, ):
     sensor = data['sensor'].iloc[0]
-    languages = data['language'].unique()
+    data["language_adj"] = data["language"].apply(lambda x: "non-native" if x == "en" else "native")
+    languages = data['language_adj'].unique()
     tones = data['tone'].unique()
 
     time_col = [c for c in data.columns if 'time' in c][0]
@@ -23,7 +25,7 @@ def line_plots_combined(data, measure='pitch_mean', min_time=None, max_time=None
     for language in languages:
         for tone in tones:
             ax = axs[idx]
-            filtered_data = data[(data['language'] == language) & (data['tone'] == tone)]
+            filtered_data = data[(data['language_adj'] == language) & (data['tone'] == tone)]
             participants = filtered_data['participant'].unique()
 
             for participant in participants:
@@ -35,65 +37,34 @@ def line_plots_combined(data, measure='pitch_mean', min_time=None, max_time=None
                     ax.plot(script_data[time_col], script_data[measure], label=f'{participant}-{script}')
 
             ax.set_xlim(min_time, max_time)
-            if language == "en":
-                language_label = "Non-mother-tongue"
-            else:
-                language_label = "Mother-tongue"
+            # if language == "en":
+            #     language_label = "Non-mother-tongue"
+            # else:
+            #     language_label = "Mother-tongue"
             
             tone_label = tone
             if tone == "bus":
                 tone_label = "business"
-            ax.set_ylabel(f'{sensor.capitalize()}', fontsize=14)
-            ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=8, fontsize=10)
+            
+            sensor_label = sensor
+            if 'intensity' in sensor:
+                sensor_label = 'intensity'
+
+            ax.set_ylabel(f'{sensor_label.capitalize()}', fontsize=16)
+            ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=9, fontsize=10)
             ax.grid(True)
-            ax.set_title(f'{language_label} - {tone_label.capitalize()}', fontsize=14)
+            ax.set_title(f'{language.capitalize()} - {tone_label.capitalize()}', fontsize=18)
             idx += 1
 
-    plt.xlabel(f'Time (Δt={delta_t}s)', fontsize=14)
+    # plt.xlabel(f'Time (Δt={delta_t}s)', fontsize=14)
     plt.tight_layout()
     file_name = f'./lineplots/{sensor}_delta{delta_t}.png'
     plt.savefig(file_name)
     plt.close()
 
-# def line_plots(data, measure='intensity_mean'):
-#     sensor = data['sensor'].iloc[0]
-#     languages = data['language'].unique()
-#     tones = data['tone'].unique()
-
-#     time_col = [c for c in data.columns if 'time' in c][0]
-#     delta_t = float(time_col.split('_')[-1])
-    
-#     def plot_and_save_intensity_float(data, language, tone):
-#         plt.figure(figsize=(18, 3))
-#         filtered_data = data[(data['language'] == language) & (data['tone'] == tone)]
-#         participants = filtered_data['participant'].unique()
-
-#         min_time = data[time_col].min()
-#         max_time = data[time_col].max()
-#         for participant in participants:
-#             participant_data = filtered_data[filtered_data['participant'] == participant]
-#             scripts = participant_data['script'].unique()
-            
-#             for script in scripts:
-#                 script_data = participant_data[participant_data['script'] == script]
-#                 plt.plot(script_data[time_col], script_data[measure], label=f'{participant}-{script}')
-        
-#         plt.xlim(min_time, max_time)
-#         # plt.xlabel(f'Time (Δt={delta_t})', fontsize=14)
-#         plt.ylabel(f'{sensor.capitalize()}', fontsize=14)
-#         # plt.title(f'{sensor.capitalize()} over Time (Δt={delta_t}) for Language: {language}, Tone: {tone}')
-#         plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=8, fontsize=12)
-#         plt.grid(True)
-        
-#         file_name = f'./lineplots/{sensor}_delta{delta_t}_{language}_{tone}.png'
-#         plt.savefig(file_name)
-#         plt.close()
-
-#     # Save plots for each combination of language and tone with float time values
-#     for language in languages:
-#         for tone in tones:
-#             plot_and_save_intensity_float(data, language, tone)
-
 # Call the function with the aggregated data
-data = pd.read_csv('data_aggregated/pitch_time_0.5.csv')
-line_plots_combined(data, measure='pitch_mean', min_time=100, max_time=120)
+for p in glob.glob("/Users/nag/study/vu_ms_ai/ml4qs/ML4QS_Group125/data_aggregated/*_1.csv"): 
+    if 'autocor' not in p:
+        data = pd.read_csv(p)
+        measure = [c for c in data.columns if 'mean' in c][0]
+        line_plots_combined(data, measure=measure, min_time=100, max_time=120)

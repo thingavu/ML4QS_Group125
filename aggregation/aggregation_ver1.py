@@ -50,16 +50,16 @@ def aggregation(data, measurement, delta=0.1):
     return aggregated_data
 
 def main():
-    os.makedirs("./data_aggregated", exist_ok=True)
+    os.makedirs("../data_aggregated", exist_ok=True)
 
     for delta in tqdm([0.1, 0.5, 1, 2, 5]):
         pitch_merged = pd.DataFrame()
         intensity_merged = pd.DataFrame()        
         for path in glob.glob("data/intensity_pitch/*/*.csv"):
-            if "nga" in path:
-                continue
-            if "duru" in path:
-                continue
+            # if "nga" in path:
+            #     continue
+            # if "duru" in path:
+            #     continue
             pitch_data, intensity = read_data(path)
             pitch_aggregated = aggregation(pitch_data, "pitch", delta=delta)
             intensity_aggregated = aggregation(intensity, "sound_intensity", delta=delta)
