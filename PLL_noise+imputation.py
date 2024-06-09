@@ -1,6 +1,7 @@
 from Chapter3.ImputationMissingValues import ImputationMissingValues
 from Chapter3.KalmanFilters import KalmanFilters
 from Chapter3.DataTransformation import LowPassFilter
+import multiprocessing as mp
 import pandas as pd
 
 # Load the data
@@ -42,8 +43,14 @@ def process_group(group):
     
     return group
 
-# Apply the operations on each subgroup
-data = data.groupby(['language', 'tone', 'participant', 'script']).apply(process_group).reset_index(drop=True)
+# Create a pool of workers
+with mp.Pool(mp.cpu_count()) as pool:
+    # Apply the operations on each subgroup in parallel
+    groups = data.groupby(['language', 'tone', 'participant', 'script'])
+    results = pool.map(process_group, [group for name, group in groups])
+
+# Concatenate the results
+data = pd.concat(results).reset_index(drop=True)
 
 # Print the NaN values in target columns
 for col in target_columns:
