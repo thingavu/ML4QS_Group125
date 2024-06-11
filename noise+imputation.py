@@ -4,7 +4,7 @@ from Chapter3.DataTransformation import LowPassFilter
 import pandas as pd
 
 # Load the data
-path = 'data_aggregated\\features_0.1.csv'
+path = './data_merged/merged_0.1.csv'
 data = pd.read_csv(path)
 
 # Target columns
@@ -51,5 +51,5 @@ for col in target_columns:
     print("final-",col, data[col].isnull().sum())
 
 # Save the data
-file_name = "preprocessed_" + path.split('\\')[-1] #.split('.')[0]
-data.to_csv("data_preprocessed\\" + file_name)
+file_name = "preprocessed_" + path.split('/')[-1] #.split('.')[0]
+data.to_csv("./data_preprocessed/" + file_name)
