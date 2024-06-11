@@ -30,7 +30,7 @@ def process_group(group):
 
     # Call the high_pass_filter function
     for col in target_columns:
-        group = low_pass.low_pass_filter(group, col, 100, 10)
+        group = low_pass.low_pass_filter(group, col, 10, 1)
 
     # Call the apply_kalman_filter function
     for col in target_columns:
@@ -39,6 +39,7 @@ def process_group(group):
     # Call the impute_interpolate function again since the Kalman filter might have introduced NaN values
     for col in target_columns:
         group = imputer.impute_interpolate(group, col)
+        group[col] = group[col].ffill().bfill()    
     
     return group
 
