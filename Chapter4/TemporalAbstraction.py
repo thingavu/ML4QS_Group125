@@ -37,24 +37,39 @@ class NumericalAbstraction:
     # This function aggregates a list of values using the specified aggregation
     # function (which can be 'mean', 'max', 'min', 'median', 'std', 'slope')
     def aggregate_value(self,data, window_size, aggregation_function):
-        window = str(window_size) + 's'
         # Compute the values and return the result.
         if aggregation_function == 'mean':
-            return data.rolling(window, min_periods=window_size).mean()
+            return data.rolling(window_size).mean()
         elif aggregation_function == 'max':
-            return data.rolling(window, min_periods=window_size).max()
+            return data.rolling(window_size).max()
         elif aggregation_function == 'min':
-            return data.rolling(window, min_periods=window_size).min()
+            return data.rolling(window_size).min()
         elif aggregation_function == 'median':
-            return data.rolling(window, min_periods=window_size).median()
+            return data.rolling(window_size).median()
         elif aggregation_function == 'std':
-            return data.rolling(window, min_periods=window_size).std()
+            return data.rolling(window_size).std()
         elif aggregation_function == 'slope':
-            return data.rolling(window, min_periods=window_size).apply(self.get_slope)
-        
-        #TODO: add your own aggregation function here
+            return data.rolling(window_size).apply(self.get_slope)
         else:
-            return np.nan
+            raise ValueError(f"Invalid aggregation function: {aggregation_function}")
+        # window = str(window_size) + 's'
+        # # Compute the values and return the result.
+        # if aggregation_function == 'mean':
+        #     return data.rolling(window, min_periods=window_size).mean()
+        # elif aggregation_function == 'max':
+        #     return data.rolling(window, min_periods=window_size).max()
+        # elif aggregation_function == 'min':
+        #     return data.rolling(window, min_periods=window_size).min()
+        # elif aggregation_function == 'median':
+        #     return data.rolling(window, min_periods=window_size).median()
+        # elif aggregation_function == 'std':
+        #     return data.rolling(window, min_periods=window_size).std()
+        # elif aggregation_function == 'slope':
+        #     return data.rolling(window, min_periods=window_size).apply(self.get_slope)
+        
+        # #TODO: add your own aggregation function here
+        # else:
+        #     return np.nan
 
 
     def abstract_numerical(self, data_table, cols, window_size, aggregation_function_name):
