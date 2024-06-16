@@ -2,7 +2,7 @@ from TemporalAbstraction import NumericalAbstraction
 import pandas as pd
 
 # Load the data
-data = pd.read_csv('./data_w_features/data_w_temporal_patterns.csv')
+data = pd.read_csv('./data_w_features_ver2/data_w_categorical_temporal_patterns.csv')
 
 # Target columns
 # columns = data.columns - ['time_1','language','tone','participant','script']
@@ -29,7 +29,7 @@ def process_group(group):
 processed_data = grouped_data.apply(process_group).reset_index(drop=True)
 
 # Merge the processed data back into the original data
-data = pd.concat([data[['language', 'tone', 'participant', 'script']], processed_data], axis=1)
+# data = pd.concat([data[['language', 'tone', 'participant', 'script']], processed_data], axis=1)
 
 # Save the data
-data.to_csv(f'data_w_features/data_w_all_features_final_win{window_size}.csv', index=False)
+processed_data.to_csv(f'data_w_features_ver2/data_w_all_features_final.csv', index=False)
